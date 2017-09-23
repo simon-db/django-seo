@@ -245,7 +245,13 @@ def get_view_form(metadata_class):
     model_class = metadata_class._meta.get_model('view')
 
     # Restrict content type choices to the models set in seo_models
-    view_choices = [(key, " ".join(key.split("_"))) for key in get_seo_views(metadata_class)]
+    view_choices = []
+    for item in get_seo_views(metadata_class):
+        if isinstance(item, list):
+            view_choices.append((item[0], item[1]))
+        else:
+            view_choices.append((item, " ".join(item.split("_"))))
+    
     view_choices.insert(0, ("", "---------"))
 
     # Get a list of fields, with _view at the start

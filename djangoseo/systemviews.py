@@ -10,6 +10,7 @@ def get_seo_views(metadata_class):
 
 
 def get_view_names(seo_views):
+    print('eeve')
     output = []
     for name in seo_views:
         try:
@@ -26,5 +27,9 @@ def get_view_names(seo_views):
             else:
                 for url in urls:
                     if getattr(url, 'name', None):
-                        output.append(url.name)
+                        indefer = url.name 
+                        try:
+                            output.append([indefer, url.callback.view_class.SEO_NAME])
+                        except AttributeError as e:
+                            output.append(indefer)
     return output
