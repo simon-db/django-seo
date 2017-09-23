@@ -10,7 +10,6 @@ def get_seo_views(metadata_class):
 
 
 def get_view_names(seo_views):
-    print('eeve')
     output = []
     for name in seo_views:
         try:
