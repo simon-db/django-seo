@@ -21,10 +21,30 @@ class Options(object):
         self.use_redirect = meta.pop('use_redirect', False)
         self.use_cache = meta.pop('use_cache', False)
         self.groups = meta.pop('groups', {})
-        self.seo_views = meta.pop('seo_views', [])
+        self.seo_views = []
+        self.seo_views_verbose_names = {}
+        for item in meta.pop('seo_views', []):
+            if isinstance(item, six.string_types):
+                self.seo_views.append(item)
+            elif isinstance(item, list) or isinstance(item, tuple):
+                _ind, _vn = item
+                self.seo_views.append(_ind)
+                self.seo_views_verbose_names.update({_ind: _vn})
+
         self.verbose_name = meta.pop('verbose_name', None)
         self.verbose_name_plural = meta.pop('verbose_name_plural', None)
-        self.backends = list(meta.pop('backends', ('path', 'modelinstance', 'model', 'view')))
+        _backends_verbose_names = {}
+        self.backends = []
+        for item in meta.pop('backends', ('path', 'modelinstance', 'model', 'view')):
+            if isinstance(item, six.string_types):
+                self.backends.append(item)
+
+            elif isinstance(item, list) or isinstance(item, tuple):
+                _indefer, _verbose_name = item
+                self.backends.append(_indefer)
+                _backends_verbose_names.update({_indefer: _verbose_name})
+
+        self.backends_verbose_names = _backends_verbose_names
         self._set_seo_models(meta.pop('seo_models', []))
         self.bulk_help_text = help_text
         self.original_meta = meta
@@ -81,8 +101,12 @@ class Options(object):
         new_md_attrs = {'_metadata': self.metadata, '__module__': __name__}
 
         new_md_meta = {}
-        new_md_meta['verbose_name'] = '%s (%s)' % (self.verbose_name, md_type)
-        new_md_meta['verbose_name_plural'] = '%s (%s)' % (self.verbose_name_plural, md_type)
+        new_md_meta['verbose_name'] = '%s (%s)' % (
+            self.verbose_name,
+            self.backends_verbose_names.get(backend.name, backend.verbose_name))
+        new_md_meta['verbose_name_plural'] = '%s (%s)' % (
+            self.verbose_name_plural,
+            self.backends_verbose_names.get(backend.name, backend.verbose_name))
         new_md_meta['unique_together'] = base._meta.unique_together
         new_md_attrs['Meta'] = type("Meta", (), new_md_meta)
         new_md_attrs['_metadata_type'] = backend.name

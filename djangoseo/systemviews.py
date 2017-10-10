@@ -26,9 +26,8 @@ def get_view_names(seo_views):
             else:
                 for url in urls:
                     if getattr(url, 'name', None):
-                        indefer = url.name 
                         try:
-                            output.append([indefer, url.callback.view_class.SEO_NAME])
+                            output.append(url.name)
                         except AttributeError as e:
-                            output.append(indefer)
+                            pass
     return output

@@ -65,7 +65,7 @@ def get_model_admin(use_site=False, use_subdomains=False):
 
 
 def get_view_admin(use_site=False, use_subdomains=False):
-    list_display = ['_view']
+    list_display = ['admin__view']
     search_fields = ['_view']
     list_filter = []
     if use_site:
@@ -95,6 +95,7 @@ def register_seo_admin(admin_site, metadata_class):
                      if obj.editable)
 
     backends = metadata_class._meta.backends
+    seo_views_verbose_names = metadata_class._meta.seo_views_verbose_names
 
     if 'model' in backends:
         class ModelAdmin(model_admin):
@@ -107,6 +108,11 @@ def register_seo_admin(admin_site, metadata_class):
         class ViewAdmin(view_admin):
             form = get_view_form(metadata_class)
             list_display = view_admin.list_display + get_list_display()
+
+            def admin__view(self, obj):
+                return seo_views_verbose_names.get(obj._view, obj._view) 
+            admin__view.short_description = "Представление (страница)"
+
 
         _register_admin(admin_site, metadata_class._meta.get_model('view'), ViewAdmin)
 
@@ -243,17 +249,13 @@ def get_path_form(metadata_class):
 
 def get_view_form(metadata_class):
     model_class = metadata_class._meta.get_model('view')
-
-    # Restrict content type choices to the models set in seo_models
+    seo_views_verbose_names = metadata_class._meta.seo_views_verbose_names
     view_choices = []
     for item in get_seo_views(metadata_class):
-        if isinstance(item, list):
-            view_choices.append((item[0], item[1]))
-        else:
-            view_choices.append((item, " ".join(item.split("_"))))
+        _verbose_name = seo_views_verbose_names.get(item, " ".join(item.split("_")))
+        view_choices.append((item, _verbose_name))
     
     view_choices.insert(0, ("", "---------"))
-
     # Get a list of fields, with _view at the start
     important_fields = ['_view'] + core_choice_fields(metadata_class)
     _fields = important_fields + list(fields_for_model(model_class,
