@@ -39,6 +39,8 @@ class FormattedMetadata(object):
     """
 
     def __init__(self, metadata, instances, path, site=None, language=None, subdomain=None):
+        self._path = path
+        self._instances = instances
         self.__metadata = metadata
         if metadata._meta.use_cache:
             if metadata._meta.use_sites and site:
@@ -81,7 +83,7 @@ class FormattedMetadata(object):
         if name in self.__metadata._meta.elements:
             populate_from = self.__metadata._meta.elements[name].populate_from
             if callable(populate_from):
-                return populate_from(None)
+                return populate_from(**{"path": self._path, "instances": self._instances})
             elif isinstance(populate_from, Literal):
                 return populate_from.value
             elif populate_from is not NotSet:
