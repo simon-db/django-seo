@@ -7,7 +7,11 @@ from django.utils.functional import lazy
 from django.utils.safestring import mark_safe
 from django.utils.module_loading import import_string
 from django.utils.html import conditional_escape
-from django.core.urlresolvers import RegexURLResolver, RegexURLPattern, Resolver404, get_resolver, clear_url_caches
+try:
+    from django.core.urlresolvers import RegexURLResolver, RegexURLPattern, Resolver404, get_resolver, clear_url_caches
+except ImportError:
+    from django.urls import URLResolver, URLPattern, Resolver404, get_resolver, clear_url_caches
+    
 from django.conf import settings
 from django.db import models
 from django.utils import six
